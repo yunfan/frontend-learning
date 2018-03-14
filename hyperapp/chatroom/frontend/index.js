@@ -8,37 +8,41 @@ const state = {
 }
 
 const actions = {
-  connect_server: e => (state, view) => {
+  connect_server: e => (state, actions) => {
     if(state.connected) return
     let ws = new WebSocket(state.backend)
-    ws.onopen = e => actions.ws_open(e)
-    ws.onmessage = e => actions.ws_message(e)
-    ws.onclose = e => actions.ws_close(e)
+    ws.onopen = actions.ws_open
+    ws.onmessage = actions.ws_message
+    ws.onclose = actions.ws_close
     return { connected: true, conn: ws }
   },
 
-  input_press: (e) => {
+  input_press: e => (state, actions) => {
+    console.log(e)
     if(!state.connected) return
     if(e.keyCode!=13) return
+    console.log('got you')
+    console.log(state)
     let target = document.getElementById('myinput')
-    state.ws.send(target.value)
+    state.conn.send(target.value)
     target.value = ""
     return
   },
 
-  ws_open: (e) => {
+  ws_open: e => (state, actions) => {
     console.log("connected")
   },
 
-  ws_message: (e) => {
+  ws_message: e => (state, actions) => {
     console.log(e)
     let new_messages = state.messages.slice(-9)
     new_messages.push(e.data)
     console.log(new_messages)
+    console.log(state)
     return { messages: new_messages }
   },
 
-  ws_close: (e) => {
+  ws_close: e => (state, actions) => {
     return { connected: false, conn: null }
   },
 }
@@ -49,14 +53,14 @@ const view=(state, actions) =>
           <div class="flex-item flex-container">
           <div id="messages" class="flex-item">
           {
-            state.messages.map(() => <div class="msg">{m}</div>)
+            state.messages.map(m => <div class="msg">{m}</div>)
           }
           </div>
           <div id="userdata" class="flex-item">
-            <input id="myinput" type="text" onKeyPress={ (e) => actions.input_press(e) }></input>
+            <input id="myinput" type="text" onkeypress={ actions.input_press }></input>
           </div>
           </div>) : (
-            <button id="connect" class="flex-item" onclick={ e => actions.connect_server(e) }>connect</button>
+            <button id="connect" class="flex-item" onclick={ actions.connect_server }>connect</button>
         )}
   </div>
 
