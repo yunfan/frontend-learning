@@ -18,11 +18,11 @@ const actions = {
   },
 
   input_press: e => (state, actions) => {
-    console.log(e)
+    //console.log(e)
     if(!state.connected) return
     if(e.keyCode!=13) return
-    console.log('got you')
-    console.log(state)
+    //console.log('got you')
+    //console.log(state)
     let target = document.getElementById('myinput')
     state.conn.send(target.value)
     target.value = ""
@@ -34,11 +34,12 @@ const actions = {
   },
 
   ws_message: e => (state, actions) => {
-    console.log(e)
-    let new_messages = state.messages.slice(-9)
-    new_messages.push(e.data)
-    console.log(new_messages)
-    console.log(state)
+    //console.log(e)
+    let new_messages = state.messages.slice(-20)
+    let msg = JSON.parse(e.data)
+    new_messages.push(msg.user + ': ' + msg.msg)
+    //console.log(new_messages)
+    //console.log(state)
     return { messages: new_messages }
   },
 
